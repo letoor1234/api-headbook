@@ -1,8 +1,6 @@
 const express = require('express');
-const mongoose = require('mongoose');
-const path = require ('path');
 
-//const {mongoose} = require ('./database');
+const {mongoose} = require ('./database');
 
 const app = express();
 
@@ -10,10 +8,10 @@ const app = express();
 app.set('port', process.env.PORT || 3000);
 
 //Middlewares
-
+app.use(express.json());
 
 //Routes
-
+app.use('/api/users', require('./routes/users.routes'));
 
 //Statics
 
