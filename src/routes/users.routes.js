@@ -46,22 +46,20 @@ router.post('/login', async (req, res)=>{
 
     User.find({'user': user})
         .then((user)=>{
-            console.log(user)
-            bcrypt.compare(pass, user.pass, (err, result)=>{
-               
-                    console.log(result);
-                    return result;
-                
-            });
+            return user[0];
         })
-        .then((isSame)=>{
-            if(!isSame){
-                res.status(403).send();
-                console.log('no es la misma');
-            } else{
-                console.log('yeah');
-            }
-            res.send();
+        .then((user)=>{
+            console.log(user.pass)
+            bcrypt.compare(pass, user.pass, (err, result)=>{
+                if(!result){
+                    res.json({login: "false"});
+                    console.log("Password don't match");
+                } else{
+                    console.log("Correct password!");
+                    res.json([{login: "true"}, user]);
+                    //Iniciar session!!!!
+                }
+            })
         })
         .catch((err)=>{
             console.log(err);
