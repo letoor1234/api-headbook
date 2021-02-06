@@ -39,27 +39,33 @@ router.post('/register', async (req, res)=>{
             next();
         })
 });
-
+  
 router.post('/login', async (req, res)=>{
     const user = req.body.user;
     const pass = req.body.pass;
 
     User.find({'user': user})
-        .then((user)=>{
-            return user[0];
-        })
-        .then((user)=>{
-            console.log(user.pass)
-            bcrypt.compare(pass, user.pass, (err, result)=>{
-                if(!result){
-                    res.json({login: "false"});
-                    console.log("Password don't match");
-                } else{
-                    console.log("Correct password!");
-                    res.json([{login: "true"}, user]);
-                    //Iniciar session!!!!
-                }
-            })
+        .then((users)=>{
+			if(users.length){
+				const user = users[0];
+				
+				bcrypt.compare(pass, user.pass, (err, result)=>{
+					if(!result){		
+						console.log("Password don't match");
+						res.json({login: "true", passMatch: "false"});
+						
+					} else{
+						console.log("Correct password!");
+						res.json([{login: "true", passMatch:"true"}, user]);
+						//Iniciar session!!!!
+					}
+					
+				})
+			} else{
+				res.json([{login: "false", passMatch: "false"}])
+			}
+			
+			console.log(res.json);
         })
         .catch((err)=>{
             console.log(err);
