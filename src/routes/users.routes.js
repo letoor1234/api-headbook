@@ -5,7 +5,7 @@ const router = express.Router();
 
 const User = require('../models/users.js');
 
-const salt = 2;
+const salt = 10;
 
 router.get ('/', async (req, res)=>{
     const user = await User.find();
@@ -77,8 +77,7 @@ router.post('/login', async (req, res)=>{
 			} else{
 				res.json([{login: "false", passMatch: "false"}])
 			}
-			
-			console.log(res.json);
+
         })
         .catch((err)=>{
             console.log(err);
