@@ -21,8 +21,7 @@ app.set('port', process.env.PORT || 4000);
 //Middlewares
 app.use(express.json());
 app.use(cors());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended:false}));
+app.use(express.urlencoded({extended:false}));
 app.use(cookieParser('secret'));
 app.use(session({
     secret: 'secret',
@@ -32,23 +31,28 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-passport.use(new localStrategy((user, pass, done)=>{
+const loginStrategy = new localStrategy((user, pass, done)=>{
     User.findOne({'user': user})
         .then((userReceived)=>{
+            console.log("pasa por aqui");
+            if(!userReceived || !userReceived.validPassword(pass)){
+                return done(null, false, {message: "Invalid"});
+            }
             return done(null, userReceived);
         })
         .catch((err)=>{
             return done(null, false);
         })
-}));
+});
 
+passport.use('login-user', loginStrategy);
 passport.serializeUser((user, done)=>{
     done(null, user._id);
 });
 
 passport.deserializeUser((id, done)=>{
-    done(null, User.findOne({'user': user}));
-})
+    done(null, User.findByID(id));
+});
 
 //Routes
 app.use('/api/users', require('./routes/users.routes'));

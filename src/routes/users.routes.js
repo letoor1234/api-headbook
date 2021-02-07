@@ -2,6 +2,7 @@ const express = require ('express');
 const bcrypt = require('bcrypt');
 const db = require('../database');
 const router = express.Router();
+const passport=require('passport');
 
 const User = require('../models/users.js');
 
@@ -52,12 +53,17 @@ router.post('/register', async (req, res)=>{
 });
   
 router.post('/login', async (req, res)=>{
-    const user = req.body.user;
-    const pass = req.body.pass;
+	console.log('mierda');
+	//passport.authenticate('local',(err, userN, data)=>{
+		
+
+	//a ver a ver ^^^^^^^^^	
+	const user = req.body.user;
+	const pass = req.body.pass;
 	const session = req.body.session;
 
-    User.find({'user': user})
-        .then((users)=>{
+	User.find({'user': user})
+		.then((users)=>{
 			if(users.length){
 				const user = users[0];
 				
@@ -78,11 +84,11 @@ router.post('/login', async (req, res)=>{
 				res.json([{login: "false", passMatch: "false"}])
 			}
 
-        })
-        .catch((err)=>{
-            console.log(err);
-            next();
-        })
+		})
+		.catch((err)=>{
+			console.log(err);
+			next();
+		})
 })
 
 module.exports = router;
