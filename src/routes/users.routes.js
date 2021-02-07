@@ -23,26 +23,38 @@ router.post('/register', async (req, res)=>{
     const user = req.body.user;
     const mail = req.body.mail;
     const pass = req.body.pass;
-
-    bcrypt.hash(pass, salt)
-        .then((hashedPass)=>{
-            const newUser = new User ({user,mail, pass: hashedPass});
-            return newUser;
-        })
-        .then((newUser)=>{
-            newUser.save();
-            res.json({uploaded: "true"});
-        })
-        .catch((err)=>{
-            console.log("Error saving: ", err);
-            res.json({uploaded: "false"});
-            next();
-        })
+	
+	User.find({'user': user})
+		.then((list)=>{
+			console.log(list.length)
+			if(list.length != 0){
+				res.json({uploaded: "false", exists: "true"});
+			} else{
+				bcrypt.hash(pass, salt)
+				.then((hashedPass)=>{
+					const newUser = new User ({user,mail, pass: hashedPass});
+					return newUser;
+				})
+				.then((newUser)=>{
+					newUser.save();
+					res.json({uploaded: "true", exists: "false"});
+				})
+				.catch((err)=>{
+					console.log("Error saving: ", err);
+					res.json({uploaded: "false", exists: "unknow"});
+					next();
+				})
+			}
+		})
+		.catch((err)=>{
+			res.json({uploaded: "false", exists: "unknow"});
+		})
 });
   
 router.post('/login', async (req, res)=>{
     const user = req.body.user;
     const pass = req.body.pass;
+	const session = req.body.session;
 
     User.find({'user': user})
         .then((users)=>{
@@ -50,14 +62,15 @@ router.post('/login', async (req, res)=>{
 				const user = users[0];
 				
 				bcrypt.compare(pass, user.pass, (err, result)=>{
-					if(!result){		
-						console.log("Password don't match");
-						res.json({login: "true", passMatch: "false"});
-						
-					} else{
+					if(result){	
 						console.log("Correct password!");
 						res.json([{login: "true", passMatch:"true"}, user]);
 						//Iniciar session!!!!
+						
+					} else{
+						console.log("Password don't match");
+						res.json([{login: "true", passMatch: "false"}]);
+						
 					}
 					
 				})
