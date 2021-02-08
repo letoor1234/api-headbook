@@ -8,12 +8,12 @@ const userSchema = new Schema({
     pass: {type: String, required: true}
 });
 
+userSchema.methods.hashPassword=(pass) =>{
+    return bcrypt.hashSync(pass, 12);
+};
+//RETURN FALSE IF DONT MATCH!!!!
 userSchema.methods.validPassword = (pass)=> {
     return bcrypt.compareSync(pass, this.pass);
 };
-
-userSchema.virtual("password").set((value) =>{
-    this.pass = bcrypt.hashSync(value, 12);
-});
 
 module.exports = mongoose.model('User', userSchema);

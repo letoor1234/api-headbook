@@ -4,10 +4,8 @@ const db = require('../database');
 const router = express.Router();
 const passport=require('passport');
 
-const User = require('../models/users.js');
-
-const salt = 10;
-
+const salt = 10; 
+const User=require('../models/users');
 router.get ('/', async (req, res)=>{
     const user = await User.find();
 
@@ -20,7 +18,19 @@ router.get('/:id', async (req, res)=>{
     res.json(user);
 });
 
-router.post('/register', async (req, res)=>{
+router.post('/register',(req, res)=>{
+	passport.authenticate('local-register',(err,user,info)=>{
+		console.log('aca ni llega');
+		if(!user){
+			res.json({uploaded: "false", exists: "true"}, info);
+			return;
+		} else{
+			res.json({uploaded: "true", exists: "false"}, user);
+		}
+	}
+	)
+});
+	/*
     const user = req.body.user;
     const mail = req.body.mail;
     const pass = req.body.pass;
@@ -50,14 +60,12 @@ router.post('/register', async (req, res)=>{
 		.catch((err)=>{
 			res.json({uploaded: "false", exists: "unknow"});
 		})
-});
+});*/
   
-router.post('/login', async (req, res)=>{
-	console.log('mierda');
-	//passport.authenticate('local',(err, userN, data)=>{
-		
-
-	//a ver a ver ^^^^^^^^^	
+router.post('/login', passport.authenticate('local-login',(err, user, info)=>{
+	console.log("al menos pasa por el authenticator!!");
+})
+/*async (req, res)=>{
 	const user = req.body.user;
 	const pass = req.body.pass;
 	const session = req.body.session;
@@ -89,6 +97,7 @@ router.post('/login', async (req, res)=>{
 			console.log(err);
 			next();
 		})
-})
-
+}
+*/
+)
 module.exports = router;
