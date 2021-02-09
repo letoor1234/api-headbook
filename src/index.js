@@ -34,10 +34,9 @@ app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use((req,res,next)=>{
-    app.locals.userExist = req.flash('userExist');
+/*app.use((req,res,next)=>{
     next();
-});
+});*/
 //Routes
 app.use('/api/users', require('./routes/users.routes'));
 

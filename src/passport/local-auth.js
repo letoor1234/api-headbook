@@ -13,48 +13,36 @@ passport.deserializeUser(async(id, done)=>{//return user from database after ser
 })
 //using strategy
 passport.use('local-register', new localStrategy({
-    usernameField: 'user',
-    passwordField: 'pass',
+    usernameField: "user",
+    passwordField: "pass",
     passReqToCallback: true
-}, async (req, mail, user, pass, done)=>{
-    console.log('eto si');
-    const mailYet= User.find({'mail':req.mail});
+}, async (req, user, pass, done)=>{
+    const mailYet= await User.findOne({'mail':req.body.mail});//debe ser asincrono!!!
     if(mailYet){
         return done(null, false, {mailExist: true});
     } else{
-        const userYet=User.find({'user': user});
+        const userYet=await User.findOne({'user': user});
         if(userYet){
            return done(null, false, {userExist: true}); 
         } else{
             const newUser =new User();//using model
             newUser.user = user; 
-            newUser.mail = mail;
-            newUser.pass = user.hashPassword(pass);
+            newUser.mail = req.body.mail;
+            newUser.pass = newUser.hashPassword(pass);
             await newUser.save();//set and save model data
 			console.log('todo guardado');
             done(null, newUser);//return of strategy(err, data)
         }
-    } 
+    }
 }))
 
 passport.use('local-login', new localStrategy({
     usernameField: 'user',
     passwordField: 'pass',
     passReqToCallback: true
-}, async (req, user, pass, done)=>{
+}, async (req, done)=>{
     console.log('eto si');
 	
-	const userYet=User.find({'user': user});
-	if(!userYet){
-	   console.log("usuario no existe!");
-	   return done(null, false, {userExist: false, passMatch: false}); 
-	} else{
-		if(userYet.validPassword(pass)){
-			console.log("usuarop y pass ok!");
-			done(null, userYet, {userExist: true, passMatch: true});//return of strategy(err, data)
-		}else{
-			console.log("password dont match");
-			done(null, false, {userExist: true,passMatch: false});//return of strategy(err, data)
-		}
-	}
+	console.log(req);
+    done(null, req);
 }))

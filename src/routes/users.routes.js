@@ -18,53 +18,58 @@ router.get('/:id', async (req, res)=>{
     res.json(user);
 });
 
-router.post('/register',(req, res)=>{
-	passport.authenticate('local-register',(err,user,info)=>{
-		console.log('aca ni llega');
-		if(!user){
-			res.json({uploaded: "false", exists: "true"}, info);
-			return;
-		} else{
-			res.json({uploaded: "true", exists: "false"}, user);
-		}
-	}
-	)
-});
-	/*
-    const user = req.body.user;
-    const mail = req.body.mail;
-    const pass = req.body.pass;
-	
-	User.find({'user': user})
-		.then((list)=>{
-			console.log(list.length)
-			if(list.length != 0){
-				res.json({uploaded: "false", exists: "true"});
+router.post('/register', (req,res,next)=> {
+	passport.authenticate('local-register', (err,user,info)=>{
+		const newUser = user.user;
+		const mail = user.mail;
+		const pass = user.pass;
+		if(!err){
+			if(!user){
+				res.json(info);
 			} else{
-				bcrypt.hash(pass, salt)
-				.then((hashedPass)=>{
-					const newUser = new User ({user,mail, pass: hashedPass});
-					return newUser;
-				})
-				.then((newUser)=>{
-					newUser.save();
-					res.json({uploaded: "true", exists: "false"});
-				})
-				.catch((err)=>{
-					console.log("Error saving: ", err);
-					res.json({uploaded: "false", exists: "unknow"});
-					next();
-				})
-			}
-		})
-		.catch((err)=>{
-			res.json({uploaded: "false", exists: "unknow"});
-		})
-});*/
+				res.json(user);
+			} 
+		} else{
+			console.log(err);
+		}
+		
+		/*User.find({'user': user})
+			.then((list)=>{
+				console.log(list.length)
+				if(list.length != 0){
+					res.json({uploaded: "false", exists: "true"});
+				} else{
+					bcrypt.hash(pass, salt)
+					.then((hashedPass)=>{
+						const newUser = new User ({user,mail, pass: hashedPass});
+						return newUser;
+					})
+					.then((newUser)=>{
+						newUser.save();
+						res.json({uploaded: "true", exists: "false"});
+					})
+					.catch((err)=>{
+						console.log("Error saving: ", err);
+						res.json({uploaded: "false", exists: "unknow"});
+						next();
+					})
+				}
+			})
+			.catch((err)=>{
+				res.json({uploaded: "false", exists: "unknow"});
+			})*/
+	})(req, res, next);
+});
   
-router.post('/login', passport.authenticate('local-login',(err, user, info)=>{
-	console.log("al menos pasa por el authenticator!!");
-})
+router.post('/login', (req,res)=>{
+	const user = User.find({"user": req.body.user});
+	if(user){
+		res.json(req.body);
+	} else{
+		res.json("noesite");
+	}
+	
+});
 /*async (req, res)=>{
 	const user = req.body.user;
 	const pass = req.body.pass;
@@ -99,5 +104,5 @@ router.post('/login', passport.authenticate('local-login',(err, user, info)=>{
 		})
 }
 */
-)
+
 module.exports = router;
