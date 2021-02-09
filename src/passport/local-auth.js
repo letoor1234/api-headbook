@@ -19,11 +19,11 @@ passport.use('local-register', new localStrategy({
 }, async (req, user, pass, done)=>{
     const mailYet= await User.findOne({'mail':req.body.mail});//debe ser asincrono!!!
     if(mailYet){
-        return done(null, false, {mailExist: true});
+        return done(null, false, {mailExist: true, userExists: false});
     } else{
         const userYet=await User.findOne({'user': user});
         if(userYet){
-           return done(null, false, {userExist: true}); 
+           return done(null, false, {mailExist: false, userExist: true}); 
         } else{
             const newUser =new User();//using model
             newUser.user = user; 
@@ -31,7 +31,7 @@ passport.use('local-register', new localStrategy({
             newUser.pass = newUser.hashPassword(pass);
             await newUser.save();//set and save model data
 			console.log('todo guardado');
-            done(null, newUser);//return of strategy(err, data)
+            done(null, newUser, {mailExist: false, userExist: false});//return of strategy(err, data)
         }
     }
 }))

@@ -32,32 +32,6 @@ router.post('/register', (req,res,next)=> {
 		} else{
 			console.log(err);
 		}
-		
-		/*User.find({'user': user})
-			.then((list)=>{
-				console.log(list.length)
-				if(list.length != 0){
-					res.json({uploaded: "false", exists: "true"});
-				} else{
-					bcrypt.hash(pass, salt)
-					.then((hashedPass)=>{
-						const newUser = new User ({user,mail, pass: hashedPass});
-						return newUser;
-					})
-					.then((newUser)=>{
-						newUser.save();
-						res.json({uploaded: "true", exists: "false"});
-					})
-					.catch((err)=>{
-						console.log("Error saving: ", err);
-						res.json({uploaded: "false", exists: "unknow"});
-						next();
-					})
-				}
-			})
-			.catch((err)=>{
-				res.json({uploaded: "false", exists: "unknow"});
-			})*/
 	})(req, res, next);
 });
   
