@@ -11,9 +11,5 @@ const userSchema = new Schema({
 userSchema.methods.hashPassword=(pass) =>{
     return bcrypt.hashSync(pass, 12);
 };
-//RETURN FALSE IF DONT MATCH!!!!
-userSchema.methods.validPassword = (pass)=> {
-    return bcrypt.compareSync(pass, this.pass);
-};
 
 module.exports = mongoose.model('User', userSchema);

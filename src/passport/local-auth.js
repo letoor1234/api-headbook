@@ -1,4 +1,5 @@
 const passport = require('passport');
+const bcrypt = require('bcrypt');
 const localStrategy = require('passport-local').Strategy;
 
 const User=require('../models/users');
@@ -40,9 +41,16 @@ passport.use('local-login', new localStrategy({
     usernameField: 'user',
     passwordField: 'pass',
     passReqToCallback: true
-}, async (req, done)=>{
-    console.log('eto si');
-	
-	console.log(req);
-    done(null, req);
+}, async (req, user, pass, done)=>{
+    const userYet= await User.findOne({'user': user});
+    if(!userYet){
+        return done(null, false, {userExist: false});
+    } else {
+        const passVerified = bcrypt.compareSync(pass, userYet.pass);
+        if(passVerified){
+            return done(null, userYet);
+        } else{
+            return done(null, false, {passVerified: false});
+        }
+    }
 }))
