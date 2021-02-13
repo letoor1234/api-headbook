@@ -19,27 +19,27 @@ app.set('port', process.env.PORT || 4000);
 
 //Middlewares
 app.use(express.json());
-app.use(cors());
-app.use(express.urlencoded({extended:false}));
-app.use(cookieParser('secret'));
+var corsOptions={
+    origin:'http://localhost:3000',
+    credentials: true 
+}
+app.use(cors(corsOptions));
+
+app.use(bodyParser.json());
+app.use(cookieParser('dontSpyIt'));
 
 app.use(session({
-    secret: 'thisIsASecretSession,dontSpyIt',//no vulnerable,
-    resave: false,
-    saveUninitialized: false
+    secret: 'dontSpyIt',//no vulnerable,
+	resave: false,
+	saveUninitialized: false,
+    cookie: { sameSite: 'strict' },
 }));
-
-app.use(flash());
-
 app.use(passport.initialize());
 app.use(passport.session());
 
-/*app.use((req,res,next)=>{
-    next();
-});*/
+
 //Routes
 app.use('/api/users', require('./routes/users.routes'));
-
 
 //Start server
 app.listen(app.get('port'), ()=>{

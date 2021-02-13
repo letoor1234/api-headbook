@@ -13,11 +13,6 @@ router.get ('/', async (req, res)=>{
     res.json(user); 
 });
 
-router.get('/:id', async (req, res)=>{
-    const user = await User.findById(req.params.id);
-    
-    res.json(user);
-});
 
 router.post('/register', (req,res,next)=> {
 	passport.authenticate('local-register', (err,user,info)=>{
@@ -28,21 +23,31 @@ router.post('/register', (req,res,next)=> {
 			if(!user){
 				res.json(info);
 			} else{
+				req.login(user, (err)=>{
+					console.log(err);
+				});
 				res.json(user);
-			} 
+			}
 		} else{
 			console.log(err);
 		}
 	})(req, res, next);
 });
   
-router.post('/login', (req,res, next)=>{
-	passport.authenticate('local-login', (err, user, info)=>{
+router.post('/login', async (req,res, next)=>{
+	passport.authenticate('local-login', async(err, user, info)=>{
 		if(!err){
 			if(!user){
 				res.json(info);
 			} else{
-				res.json(user);
+				
+				req.login(user, (err)=>{
+					if(err){
+						console.log(err);
+					}
+					return res.json(req.user);
+					
+				});
 			}
 		} else{
 			console.log(err);
@@ -50,5 +55,19 @@ router.post('/login', (req,res, next)=>{
 		
 	})(req, res, next);
 });
+
+router.get('/auth',  (req, res)=>{
+	if(req.isAuthenticated()){
+		res.json(req.user);
+	}else{
+		res.json({isAuthenticated: false});
+	}
+});
+
+router.get('/logout', (req, res)=>{
+	req.logout();
+	res.json({loguedOut: true});
+})
+
 
 module.exports = router;
